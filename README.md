@@ -67,7 +67,25 @@ Notas de instalación en Windows:
 - **Rutas largas:** Dart Sass (usado por Angular) falla si la carpeta del proyecto tiene una ruta muy
   larga. Ubique el proyecto en una ruta corta (p. ej. `C:\proyectos\firma-digital`).
 
-## Puesta en marcha rápida
+## Producción: firma.juarezcampos.net (cPanel)
+
+```
+Navegador ──HTTPS──▶ firma.juarezcampos.net        SPA Angular + /api (Laravel) en el hosting
+    │
+    └──HTTP local──▶ 127.0.0.1:9876                Agente de Firma en la PC del usuario (token/DNIe)
+```
+
+1. Genere el paquete (en una PC Windows con PHP 8.3, Composer, Node y .NET 8):
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\firma-servicio\scripts\empaquetar-cpanel.ps1 -Dominio firma.juarezcampos.net
+   ```
+   Produce `paquetes\firma-cpanel-<dominio>-<fecha>.zip` con la SPA compilada, el `.htaccess`
+   (HTTPS, `/api` → Laravel, rutas de la SPA, cabeceras y CSP), la API con dependencias, `.env` de
+   producción, base SQLite inicial y el instalador del agente en `/descargas`.
+2. Súbalo siguiendo [despliegue/cpanel/LEEME.md](despliegue/cpanel/LEEME.md).
+3. En cada PC que firma, instale `AgenteFirmaSetup.exe` (se descarga desde la propia aplicación).
+
+## Puesta en marcha rápida (desarrollo)
 
 En una carpeta de ruta corta (p. ej. `C:\proyectos\firma-digital`):
 
