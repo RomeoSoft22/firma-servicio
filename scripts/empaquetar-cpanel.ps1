@@ -53,6 +53,14 @@ if (-not $SinAgente) {
     }
     New-Item -ItemType Directory -Force (Join-Path $publico 'descargas') | Out-Null
     Copy-Item $setup (Join-Path $publico 'descargas\AgenteFirmaSetup.exe')
+    # Versión publicada: el agente la consulta en «Buscar actualizaciones».
+    $versionAgente = "$((Get-Item $setup).VersionInfo.ProductVersion)".Trim()
+    if (-not $versionAgente) {
+        $versionAgente = ([regex]::Match((Get-Content (Join-Path $agente 'instalador\AgenteFirma.iss') -Raw), '#define Version "([^"]+)"')).Groups[1].Value
+    }
+    @{ version = $versionAgente; archivo = '/descargas/AgenteFirmaSetup.exe' } | ConvertTo-Json |
+        Set-Content (Join-Path $publico 'descargas\agente-version.json') -Encoding ascii
+    Write-Host "   Agente publicado: versión $versionAgente"
 } else {
     Write-Host '== 2/4 (omitido) Instalador del agente' -ForegroundColor DarkGray
 }
