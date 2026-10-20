@@ -9,6 +9,8 @@ param(
     [string]$Dominio = 'firma.juarezcampos.net',
     [string]$Base = (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent),
     [string]$Salida = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'paquetes'),
+    # Clave de administración (Historial y Configuración). Si se omite, se genera una aleatoria.
+    [string]$ClaveAdmin = '',
     [switch]$SinAgente
 )
 $ErrorActionPreference = 'Stop'
@@ -68,7 +70,14 @@ try {
     if ($LASTEXITCODE) { throw 'composer install falló' }
 
     $origen = "https://$Dominio"
+    if (-not $ClaveAdmin) {
+        $bytes = New-Object byte[] 18
+        [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+        $ClaveAdmin = [Convert]::ToBase64String($bytes) -replace '[+/=]', 'x'
+    }
+    if ($ClaveAdmin.Length -lt 12) { throw 'La clave de administración debe tener al menos 12 caracteres.' }
     $env_ = (Get-Content .env.example) `
+        -replace '^ADMIN_CLAVE=.*', "ADMIN_CLAVE=`"$ClaveAdmin`"" `
         -replace '^APP_NAME=.*', 'APP_NAME=FirmaDigital' `
         -replace '^APP_ENV=.*', 'APP_ENV=production' `
         -replace '^APP_DEBUG=.*', 'APP_DEBUG=false' `
@@ -96,6 +105,11 @@ $zip = Join-Path $Salida "firma-cpanel-$Dominio-$fecha.zip"
 tar -a -c -f $zip -C $trabajo $Dominio firma-api
 if ($LASTEXITCODE) { throw 'No se pudo crear el .zip' }
 
+# La clave se entrega aparte (nunca dentro del .zip publicado).
+$archivoClave = Join-Path $Salida "CLAVE-ADMIN-$Dominio-$fecha.txt"
+Set-Content $archivoClave "Clave de administración (Historial y Configuración) de https://$Dominio`r`n$ClaveAdmin`r`n`r`nEstá en firma-api/.env como ADMIN_CLAVE. Guárdela en un lugar seguro y borre este archivo." -Encoding UTF8
+
 Write-Host "`nPaquete listo: $zip ($([math]::Round((Get-Item $zip).Length / 1MB, 1)) MB)" -ForegroundColor Green
+Write-Host "Clave de administración guardada en: $archivoClave" -ForegroundColor Yellow
 Write-Host "Carpeta sin comprimir (para revisar o probar): $trabajo"
 Write-Host 'Siga despliegue\cpanel\LEEME.md para subirlo.' -ForegroundColor Yellow
