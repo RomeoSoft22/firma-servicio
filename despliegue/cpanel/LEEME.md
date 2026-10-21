@@ -8,22 +8,22 @@ contiene dos carpetas:
 | `firma.juarezcampos.net/` | Raíz del subdominio (pública) | SPA Angular, `.htaccess`, `laravel.php`, `descargas/AgenteFirmaSetup.exe` |
 | `firma-api/` | **Fuera** de la web, junto a la anterior | Laravel con `vendor/`, `.env` de producción y base SQLite ya creada |
 
-> El `.zip` incluye el `.env` con `APP_KEY` y la **clave de administración** (`ADMIN_CLAVE`):
-> trátelo como confidencial y no lo suba a GitHub ni lo comparta. La clave también se entrega aparte
-> en `CLAVE-ADMIN-<dominio>-<fecha>.txt` (junto al .zip, no dentro).
+> El `.zip` incluye el `.env` con `APP_KEY` y el **secreto de identidad** (`IDENTIDAD_CLIENT_SECRET`):
+> trátelo como confidencial y no lo suba a GitHub ni lo comparta.
 
-## Clave de administración
+## Acceso a Historial y Configuración
 
-Historial y Configuración piden la clave de `ADMIN_CLAVE` (en `firma-api/.env`). Firmar y verificar
-no la necesitan.
+Historial y Configuración se abren con la cuenta de Juarez Campos en **identidad.juarezcampos.net** (SSO).
+Firmar y verificar siguen siendo públicos.
 
-- 5 intentos fallidos desde una misma IP la bloquean **15 minutos**; además hay un tope global de 30
-  intentos fallidos en esa ventana (frena ataques desde muchas IP). La sesión dura 60 minutos de inactividad.
-- Para cambiarla: **cPanel → Administrador de archivos → `firma-api/.env`** (active «Mostrar archivos
-  ocultos»), edite la línea `ADMIN_CLAVE="..."` y guarde. Use 16+ caracteres.
-- Ajustes opcionales en el mismo `.env`: `ADMIN_SESION_MINUTOS`, `ADMIN_INTENTOS`,
-  `ADMIN_BLOQUEO_MINUTOS`, `ADMIN_INTENTOS_GLOBALES`.
-- Si `ADMIN_CLAVE` queda vacía, nadie puede entrar a Historial ni Configuración.
+- Entra quien tenga rol `ADMIN` en el sistema **FIRMA**. Los accesos se dan y se quitan en
+  **panel.juarezcampos.net → Usuarios → Acceso a sistemas** (roles admitidos: `IDENTIDAD_ROLES_ADMIN`).
+- El bloqueo por intentos fallidos, el código por correo y la auditoría los maneja identidad.
+- `firma-api/.env` necesita `IDENTIDAD_URL`, `IDENTIDAD_API_URL`, `IDENTIDAD_CLIENT_ID`,
+  `IDENTIDAD_CLIENT_SECRET`, `IDENTIDAD_REDIRECT_URI` (`https://firma.juarezcampos.net/callback`) e
+  `IDENTIDAD_POST_LOGOUT_URI`. El secreto se obtiene en el panel (Sistemas → FIRMA → Regenerar secreto).
+- Paquete con todo ya completado: `scripts\empaquetar-cpanel.ps1 -ClientId <id> -ClientSecret <secreto>`
+  (o el paquete conjunto de `identidad/despliegue/empaquetar-cpanel.sh`).
 
 ## 1. Preparar el subdominio (una sola vez)
 
@@ -91,9 +91,10 @@ Genere un paquete nuevo y, en el hosting:
 - En `firma-api/` reemplace todo **excepto** `.env`, `database/database.sqlite` y `storage/`
   (ahí están la configuración, los datos y los PDFs). Si hay migraciones nuevas, ejecútelas desde
   **cPanel → Terminal**: `cd ~/firma-api && php artisan migrate --force`.
-- Si su `.env` es de una versión anterior y no tiene `ADMIN_CLAVE`, copie desde el `.env` del paquete
-  nuevo el bloque `ADMIN_CLAVE`, `ADMIN_SESION_MINUTOS`, `ADMIN_INTENTOS`, `ADMIN_BLOQUEO_MINUTOS` y
-  `ADMIN_INTENTOS_GLOBALES` (o defina su propia clave).
+- **Desde la versión con clave de administración (`ADMIN_CLAVE`)**: en `firma-api/.env` borre
+  `ADMIN_CLAVE`, `ADMIN_SESION_MINUTOS`, `ADMIN_INTENTOS`, `ADMIN_BLOQUEO_MINUTOS` y
+  `ADMIN_INTENTOS_GLOBALES`, y agregue el bloque `IDENTIDAD_*` (ver «Acceso a Historial y Configuración»).
+  Luego vacíe `firma-api/bootstrap/cache/` (o `php artisan optimize:clear`).
 
 ## Respaldo
 
