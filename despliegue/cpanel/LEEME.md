@@ -74,6 +74,16 @@ Firmar y verificar siguen siendo públicos.
    dispositivos de la red local**: responda **Permitir** (es la comunicación con el agente de esa PC).
 4. Conecte el token o DNIe y firme.
 
+### Aplicación de escritorio «Firma Digital» (desde la versión 2.0.0)
+
+El mismo instalador agrega el acceso directo **Firma Digital** (menú Inicio y, si se marca, escritorio).
+Abre una ventana al estilo AppFirmaONPE (Archivo, Firmar, V°B°, Imprimir, Verificar, Acercar/Alejar/Ajustar)
+que usa los mismos motivos, sellos y registro que la web: la ventana la sirve el propio agente y
+consulta a `firma.juarezcampos.net/api` a través de él, así que **no le afectan los bloqueadores
+de anuncios ni el permiso de red local** del navegador. El documento firmado se guarda junto al
+original como `nombre[F].pdf`. Requiere Microsoft Edge WebView2 (incluido en Windows 10/11 actuales;
+si falta, la ventana muestra el enlace de descarga).
+
 ### Si la web dice «No se pudo conectar con el Agente de Firma»
 
 | Causa | Solución |
@@ -95,6 +105,21 @@ Genere un paquete nuevo y, en el hosting:
   `ADMIN_CLAVE`, `ADMIN_SESION_MINUTOS`, `ADMIN_INTENTOS`, `ADMIN_BLOQUEO_MINUTOS` y
   `ADMIN_INTENTOS_GLOBALES`, y agregue el bloque `IDENTIDAD_*` (ver «Acceso a Historial y Configuración»).
   Luego vacíe `firma-api/bootstrap/cache/` (o `php artisan optimize:clear`).
+
+### De 1.x a 2.0.0 (aplicación de escritorio y logos de la marca)
+
+Basta con el paquete de actualización `firma-actualizacion-2.0.0.zip` (no trae `.env` ni base de datos):
+
+1. Suba y extraiga `firma.juarezcampos.net/` sobre la raíz del subdominio (front nuevo,
+   `descargas/AgenteFirmaSetup.exe` 2.0.0 y `descargas/agente-version.json`).
+2. Suba y extraiga `firma-api/` sobre la carpeta de la API: solo reemplaza
+   `app/Http/Controllers/Api/MarcaController.php` (nuevo) y `routes/api.php`.
+3. Si alguna vez ejecutó `php artisan route:cache`, vacíe `firma-api/bootstrap/cache/`.
+4. Compruebe `https://firma.juarezcampos.net/api/marca` → `{"version":0,"personalizados":{}}`.
+5. En cada PC, «Buscar actualizaciones» del agente ofrecerá la 2.0.0 (o instale el .exe de nuevo).
+
+Los logos se cambian en **Configuración → Logo de la marca** (se guardan en
+`firma-api/storage/app/private/marca/`).
 
 ## Respaldo
 
