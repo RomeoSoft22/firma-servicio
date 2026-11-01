@@ -113,10 +113,14 @@ Basta con el paquete de actualización `firma-actualizacion-2.0.0.zip` (no trae 
 1. Suba y extraiga `firma.juarezcampos.net/` sobre la raíz del subdominio (front nuevo,
    `descargas/AgenteFirmaSetup.exe` 2.0.0 y `descargas/agente-version.json`).
 2. Suba y extraiga `firma-api/` sobre la carpeta de la API: solo reemplaza
-   `app/Http/Controllers/Api/MarcaController.php` (nuevo), `ParametroController.php`,
-   `app/Models/Parametro.php` (parámetro `tema`) y `routes/api.php`.
+   `app/Http/Controllers/Api/` (`MarcaController.php` nuevo, `ParametroController.php`, `AccesoController.php`),
+   `app/Http/Middleware/RequiereAcceso.php`, `app/Models/Parametro.php` (parámetro `tema`),
+   `app/Support/AccesoEscritorio.php` (nuevo), `app/Providers/AppServiceProvider.php` y `routes/api.php`.
 3. Si alguna vez ejecutó `php artisan route:cache`, vacíe `firma-api/bootstrap/cache/`.
 4. Compruebe `https://firma.juarezcampos.net/api/marca` → `{"version":0,"personalizados":{}}`.
+5. Ingrese a la web con su cuenta → **Configuración → Clave de administración (aplicación de escritorio)**
+   y defina la contraseña (mínimo 8 caracteres). Es la que pide «Configurar» en la aplicación de escritorio
+   («Opciones de administración»); cada ingreso dura 60 minutos y hay como máximo 5 intentos por minuto.
 5. En cada PC, «Buscar actualizaciones» del agente ofrecerá la 2.0.0 (o instale el .exe de nuevo).
 
 Los logos se cambian en **Configuración → Logo de la marca** (se guardan en
