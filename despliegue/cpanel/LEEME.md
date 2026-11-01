@@ -113,7 +113,8 @@ Basta con el paquete de actualización `firma-actualizacion-2.0.0.zip` (no trae 
 1. Suba y extraiga `firma.juarezcampos.net/` sobre la raíz del subdominio (front nuevo,
    `descargas/AgenteFirmaSetup.exe` 2.0.0 y `descargas/agente-version.json`).
 2. Suba y extraiga `firma-api/` sobre la carpeta de la API: solo reemplaza
-   `app/Http/Controllers/Api/MarcaController.php` (nuevo) y `routes/api.php`.
+   `app/Http/Controllers/Api/MarcaController.php` (nuevo), `ParametroController.php`,
+   `app/Models/Parametro.php` (parámetro `tema`) y `routes/api.php`.
 3. Si alguna vez ejecutó `php artisan route:cache`, vacíe `firma-api/bootstrap/cache/`.
 4. Compruebe `https://firma.juarezcampos.net/api/marca` → `{"version":0,"personalizados":{}}`.
 5. En cada PC, «Buscar actualizaciones» del agente ofrecerá la 2.0.0 (o instale el .exe de nuevo).
